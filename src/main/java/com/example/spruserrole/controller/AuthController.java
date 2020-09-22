@@ -35,7 +35,7 @@ import java.util.Collections;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-//    @Autowired
+    @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
@@ -51,7 +51,7 @@ public class AuthController {
     PasswordEncoder passwordEncoder;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authticatieUser(@Valid @RequestBody LoginRequest loginRequest){
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsernameOrEmail(),
