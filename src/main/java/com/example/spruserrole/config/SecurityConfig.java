@@ -1,0 +1,88 @@
+package com.example.spruserrole.config;
+
+import com.example.spruserrole.security.CustomUserDetailsService;
+import com.example.spruserrole.security.JwtAuthenticationEntryPoint;
+import com.example.spruserrole.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true,
+        prePostEnabled = true
+)
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
+
+    public void configure(AuthenticationManagerBuilder managerBuilder) throws Exception {
+        managerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEndCoder());
+    }
+
+    public AuthenticationManager authenticationManager () throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEndCoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.cors()
+                    .and()
+                .csrf()
+                    .disable()
+                .exceptionHandling()
+                    .authenticationEntryPoint(authenticationEntryPoint)
+                    .and()
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                .authorizeRequests()
+                    .antMatchers("/",
+                            "/favicon.ico",
+                            "/**/*.png",
+                            "/**/*.gif",
+                            "/**/*.svg",
+                            "/**/*.jpg",
+                            "/**/*.html",
+                            "/**/*.css",
+                            "/**/*.js")
+                    .permitAll()
+                .antMatchers("/api/auth/**")
+                    .permitAll()
+                .antMatchers("//api/user/checkUsernameAvailability\", \"/api/user/checkEmailAvailability")
+                    .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/polls/**", "/api/users")
+                    .permitAll()
+                .anyRequest()
+                    .authenticated();
+
+//        Add our custom JWT security filter
+        httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+}
