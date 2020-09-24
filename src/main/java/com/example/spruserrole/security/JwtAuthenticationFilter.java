@@ -28,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("------------Vao doFilterInternal / JwtAuthenticationFilter");
         try {
             String jwt = getJwtFromRequest(httpServletRequest);
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)){
@@ -44,8 +45,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         };
 
         filterChain.doFilter(httpServletRequest,httpServletResponse);
+        System.out.println("------------Ket Thuc FilterChain / JwtAuthenticationFilter (chua biet la gi)");
+
     }
     private String getJwtFromRequest(HttpServletRequest request){
+        System.out.println("------------Vao getJwtFromRequest / JwtAuthenticationFilter kiểm tra bearerToken");
+
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ") ){
             return bearerToken.substring(7, bearerToken.length());

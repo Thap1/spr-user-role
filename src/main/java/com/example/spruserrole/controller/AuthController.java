@@ -52,14 +52,20 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
+        System.out.println("------------Vao Login / Controller");
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsernameOrEmail(),
                         loginRequest.getPassword()
                 )
         );
+        System.out.println("------------Authenticate se tra ra : Principal --- Credentials --- Authenticated --- Details --- Granted Authoritie(role)");
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        System.out.println("------------Set Authentication vao getContext trong SecurityContextHolder");
+
         String jwt = jwtTokenProvider.genarateToken(authentication);
+        System.out.println("-----------tao Jwt voi authentication :" + jwt);
 
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
