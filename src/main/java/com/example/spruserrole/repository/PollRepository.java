@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PollReponsitory extends JpaRepository<Long, Poll> {
+public interface PollRepository extends JpaRepository<Poll, Long> {
     Optional<Poll> findById(Long id);
 
     Page<Poll> findByCreatedBy(Long userId, Pageable pageable);
@@ -20,5 +20,5 @@ public interface PollReponsitory extends JpaRepository<Long, Poll> {
 
     List<Poll> findByIdIn(List<Long> pollIds);
 
-    List<Poll> findByIdIn(List<Poll> pollIds, Sort sort);
+    List<Poll> findByIdIn(List<Long> pollIds, Sort sort);
 }

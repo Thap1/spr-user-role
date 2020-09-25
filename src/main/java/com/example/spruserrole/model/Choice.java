@@ -25,4 +25,8 @@ public class Choice {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "poll_id", nullable = false)
     private Poll poll;
+
+    public Choice(String text) {
+        this.text = text;
+    }
 }
