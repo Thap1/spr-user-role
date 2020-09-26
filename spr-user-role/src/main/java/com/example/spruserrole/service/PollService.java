@@ -156,17 +156,25 @@ public class PollService {
         }
         User user = userRepository.getOne(userPrincipal.getId());
         Choice selectedChoice = poll.getChoices().stream().filter(choice-> choice.getId().equals(voteRequest.getChoiceId())).findFirst()
-                .orElseThrow(()-> new ResourceNotFoundException("Choice" "Id", voteRequest.getChoiceId()));
+                .orElseThrow(()-> new ResourceNotFoundException("Choice", "Id", voteRequest.getChoiceId()));
         Vote vote = new Vote();
         vote.setPoll(poll);
         vote.setUser(user);
         vote.setChoice(selectedChoice);
 
         try{
-            vote =  voteRepository.save(vote)
+            vote =  voteRepository.save(vote);
         }catch (DataIntegrityViolationException ex){
-            LOGGER.info("User {} has already vote");
+            LOGGER.info("User {} has already vote in Poll", userPrincipal.getId(), pollId );
+            throw new BadRequestException("Sorry! you have already cast your vote in this poll");
         }
+
+        List<ChoiceVoteCount> voteCounts = voteRepository.countByPollIdGroupByChoiceId(pollId);
+        Map<Long, Long> choiceVoteMap = voteCounts.stream().collect(Collectors.toMap(ChoiceVoteCount::getChoiceId, ChoiceVoteCount::getVoteCount));
+
+        User creator = userRepository.findById(poll.getCreatedBy()).orElseThrow(() -> new ResourceNotFoundException("User","id", poll.getCreatedBy()));
+
+        return ModelMapper.mapPollToPollResponse(poll, choiceVoteMap, creator, vote.getChoice().getId());
 
     }
 
