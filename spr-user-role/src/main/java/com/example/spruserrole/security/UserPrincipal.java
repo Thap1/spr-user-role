@@ -19,7 +19,7 @@ public class UserPrincipal implements UserDetails {
     private String email;
     @JsonIgnore
     private String password;
-    private Collection<?extends GrantedAuthority> authorities;
+    private Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipal(Long id, String name, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;

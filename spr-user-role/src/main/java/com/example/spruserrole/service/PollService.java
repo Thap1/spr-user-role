@@ -52,6 +52,7 @@ public class PollService {
         validatePageNumberAndSize(page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
         Page<Poll> polls = pollRepository.findAll(pageable);
+        System.out.println(polls.getNumberOfElements());
 
         if (polls.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), polls.getNumber(), polls.getNumber(), polls.getSize(), polls.getTotalPages(), polls.isLast());
@@ -64,9 +65,14 @@ public class PollService {
         Map<Long, User> creatorMap = getPollCreatorMap(polls.getContent());
 
         List<PollResponse> pollResponses = polls.map(poll -> {
-            return ModelMapper.mapPollToPollResponse(poll, choiceVoteCountMap, creatorMap.get(poll.getCreatedBy()), pollUserVoteMap == null ? null : pollUserVoteMap.getOrDefault(poll.getId(), null));
+            return ModelMapper.mapPollToPollResponse(poll,
+                    choiceVoteCountMap,
+                    creatorMap.get(poll.getCreatedBy()),
+                    pollUserVoteMap == null ? null : pollUserVoteMap.getOrDefault(poll.getId(),
+                            null));
         }).getContent();
-        return new PagedResponse<>(pollResponses, polls.getNumber(), polls.getSize(), polls.getTotalElements(), polls.getTotalPages(), polls.isLast());
+        return new PagedResponse<>(pollResponses, polls.getNumber(), polls.getSize(),
+                polls.getTotalElements(), polls.getTotalPages(), polls.isLast());
 
     }
 
@@ -121,15 +127,15 @@ public class PollService {
     // createPoll
 
     public Poll createPoll(PollRequest pollRequest) {
-
         Poll poll = new Poll();
         poll.setQuestion(pollRequest.getQuestion());
-        pollRequest.getChoiceRequests().forEach(choiceRequest -> {
+        pollRequest.getChoices().forEach(choiceRequest -> {
             poll.addChoice(new Choice(choiceRequest.getText()));
         });
         Instant now = Instant.now();
         Instant expirationDateTime = now.plus(Duration.ofDays(pollRequest.getPollLength().getDays())).plus(Duration.ofHours(pollRequest.getPollLength().getHours()));
 
+        poll.setExpirationDateTime(expirationDateTime);
         return pollRepository.save(poll);
     }
 

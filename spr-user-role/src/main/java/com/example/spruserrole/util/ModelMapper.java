@@ -38,7 +38,7 @@ public class ModelMapper {
 
         }).collect(Collectors.toList());
 
-        pollResponse.setChoiceResponses(choiceResponses);
+        pollResponse.setChoices(choiceResponses);
         UserSummary userSummary = new UserSummary();
 
         userSummary.setId(user.getId());
@@ -50,7 +50,7 @@ public class ModelMapper {
         if (userVote != null) {
             pollResponse.setSelectedChoice(userVote);
         }
-        long totalVotes = pollResponse.getChoiceResponses().stream().mapToLong(ChoiceResponse::getVoteCount).sum();
+        long totalVotes = pollResponse.getChoices().stream().mapToLong(ChoiceResponse::getVoteCount).sum();
         pollResponse.setTotalVotes(totalVotes);
         return pollResponse;
     }

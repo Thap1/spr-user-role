@@ -53,7 +53,7 @@ public class UserController {
         return new UserIdentityAvailability(isAvailable);
     }
 
-    @GetMapping("/user/{username}")
+    @GetMapping("/users/{username}")
     public UserProfile getUserProfile(@PathVariable(value = "username") String username) {
         User user = userRepository.findByUsername(username).orElseThrow(
                 () -> new ResourceNotFoundException("User", "username", username));
@@ -74,7 +74,7 @@ public class UserController {
         return pollService.getPollsCreatedBy(username, userPrincipal, page, size);
     }
 
-    @GetMapping("/user/{username}/votea")
+    @GetMapping("/user/{username}/votes")
     public PagedResponse<PollResponse> getPollsVoteBy(@PathVariable(value = "username") String username,
                                                       @CurrentUser UserPrincipal userPrincipal,
                                                       @RequestParam(value = "pgae", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,

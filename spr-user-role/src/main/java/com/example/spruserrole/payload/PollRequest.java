@@ -20,7 +20,7 @@ public class PollRequest {
     @NotNull
     @Size(min = 2,max = 6)
     @Valid
-    private List<ChoiceRequest> choiceRequests;
+    private List<ChoiceRequest> choices;
 
     @NotNull
     @Valid

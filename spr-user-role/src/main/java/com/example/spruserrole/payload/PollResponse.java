@@ -14,7 +14,7 @@ import java.util.List;
 public class PollResponse {
     private Long id;
     private String question;
-    private List<ChoiceResponse> choiceResponses;
+    private List<ChoiceResponse> choices;
     private UserSummary createdBy;
     private Instant expirationDateTime;
     private Instant creationDateTime;

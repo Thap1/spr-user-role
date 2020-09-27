@@ -46,10 +46,17 @@ public class PollController {
 
     @PostMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> createPoll(@Valid @RequestParam PollRequest pollRequest) {
+    public ResponseEntity<?> createPoll(@Valid @RequestBody PollRequest pollRequest) {
+        System.out.println("error2222222222222222222222222222222222222");
+
         Poll poll = pollService.createPoll(pollRequest);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{pollId}").buildAndExpand(poll.getId()).toUri();
-        return ResponseEntity.created(location).body(new ApiResponse(true, "Poll Created Successfully"));
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{pollId}")
+                .buildAndExpand(poll.getId()).toUri();
+
+        return ResponseEntity.created(location)
+                .body(new ApiResponse(true, "Poll Created Successfully"));
+
     }
 
     @GetMapping("/{pollId}")
@@ -57,7 +64,11 @@ public class PollController {
         return pollService.getPollById(pollId, userPrincipal);
     }
 
-    public PollResponse castVote(@CurrentUser UserPrincipal userPrincipal, @PathVariable Long pollId, @Valid @RequestParam VoteRequest voteRequest){
+    @PostMapping("/{pollId}/votes")
+    @PreAuthorize("hasRole('USER')")
+    public PollResponse castVote(@CurrentUser UserPrincipal userPrincipal,
+                                 @PathVariable Long pollId,
+                                 @Valid @RequestParam VoteRequest voteRequest){
         return pollService.castVoteAndGetUpdatedPoll(pollId, voteRequest, userPrincipal);
     }
 }
