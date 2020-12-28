@@ -28,8 +28,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -51,7 +50,7 @@ public class AuthController {
     PasswordEncoder passwordEncoder;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         System.out.println("------------Vao Login / Controller");
 
         Authentication authentication = authenticationManager.authenticate(
@@ -67,15 +66,20 @@ public class AuthController {
         String jwt = jwtTokenProvider.genarateToken(authentication);
         System.out.println("-----------tao Jwt voi authentication :" + jwt);
 
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsernameOrEmail());
+        Map<String, Object> response = new HashMap<>();
+        response.put("name",userOptional.get().getName());
+        response.put("role", userOptional.get().getRoles().iterator().next().getName().toString());
+        response.put("token", new JwtAuthenticationResponse(jwt));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity registerUser(@Valid @RequestBody SignUpRequest signUpRequest){
-        if (userRepository.existsByUsername(signUpRequest.getUsername())){
-            return new ResponseEntity(new ApiResponse(false, "Usernam is alrealy taken!"), HttpStatus.BAD_REQUEST);
+    public ResponseEntity registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return new ResponseEntity(new ApiResponse(false, "Username is alrealy taken!"), HttpStatus.BAD_REQUEST);
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())){
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity(new ApiResponse(false, "Email Address alreadly in use!"), HttpStatus.BAD_REQUEST);
         }
         User user = new User();
